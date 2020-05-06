@@ -3,8 +3,8 @@ import numpy as np
 import cv2
 from matplotlib import pyplot as plt
 
-import crop
-import show
+from . import crop
+from . import show
 
 
 class Regions:
@@ -60,16 +60,20 @@ class MserRegionProposer(_RegionProposer):
     
     def detect(self, img):
         gray = self._to_gray(img)
-        mser = cv2.MSER(_delta = 1)
-        regions = mser.detect(gray, None)
+        mser = cv2.MSER_create(_delta = 1)
+        regions = mser.detectRegions(gray)
         bounding_boxes = self._get_boxes(regions)
         regions = Regions(img, bounding_boxes)
         return regions
     
     def _get_boxes(self, regions):
         bbs = []
-        for i, region in enumerate(regions):
-            (x, y, w, h) = cv2.boundingRect(region.reshape(-1,1,2))
+        for region in regions[1]:
+            # (x, y, w, h) = cv2.boundingRect(region.reshape(-1,1,2))
+            x = region[0]
+            y = region[1]
+            w = region[2]
+            h = region[3]
             bbs.append((y, y+h, x, x+w))
             
         return np.array(bbs)
